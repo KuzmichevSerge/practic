@@ -11,19 +11,19 @@ func conect(source string) string { // функция подключения к 
 	conn, err := net.Dial("tcp", ":6379") // Подключение к серверу на порту 6379
 	if err != nil {
 		fmt.Println(err)
-		return ""
+		return "Error"
 	}
 	defer conn.Close() //разрыв соединения при прекрощении функции main
 	for {
 		// отправляем сообщение серверу
 		if n, err := conn.Write([]byte(source)); n == 0 || err != nil {
-			return "Erorr"
+			return "Errorr"
 		}
 		// получаем ответ
 		buff := make([]byte, 1024)
 		n, err := conn.Read(buff)
 		if err != nil {
-			return "Erorr"
+			return "Error"
 		}
 		return string(buff[0:n])
 	}
@@ -77,7 +77,11 @@ func handleShorten(w http.ResponseWriter, r *http.Request) { //Сокращен�
 	// Создание сокращённой ссылки и запись её в хеш таблицу
 	shortKey := generateShortKey(originalURL)
 	source := "HSET" + " " + shortKey + " " + originalURL
-	conect(source)
+	err := conect(source)
+	if err == "Error" {
+		http.Error(w, "Server not found", http.StatusNotFound)
+		return
+	}
 	shortenedURL := fmt.Sprintf("http://localhost:3030/short/%s", shortKey)
 
 	// HTML-код
