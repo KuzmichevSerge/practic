@@ -78,7 +78,7 @@ func handleShorten(w http.ResponseWriter, r *http.Request) { //Сокращен�
 	shortKey := generateShortKey(originalURL)
 	source := "HSET" + " " + shortKey + " " + originalURL
 	err := conect(source)
-	if err == "Error" {
+	if err == "Error" {//проверка работы сервера СУБД
 		http.Error(w, "Server not found", http.StatusNotFound)
 		return
 	}
